@@ -1,1 +1,19 @@
+<div id="weekmotion-home-banner"></div>
 
+<script>
+    (function() {
+        const bannerUrl = "https://raw.githubusercontent.com/shajibsikder/weekmotion-platform/main/docs/banner.html?v=" + Math.random();
+
+        fetch(bannerUrl)
+            .then(response => {
+                if (!response.ok) throw new Error("ব্যানার ফাইলটি পাওয়া যায়নি");
+                return response.text();
+            })
+            .then(htmlContent => {
+                document.getElementById("weekmotion-home-banner").innerHTML = htmlContent;
+            })
+            .catch(error => {
+                console.error("WeekMotion Banner Error:", error);
+            });
+        })();
+</script>
