@@ -1,76 +1,76 @@
-.wm-tech-banner{
-    width:100%;
-    background:linear-gradient(135deg,#0f172a,#1e3a8a);
-    border-radius:14px;
-    padding:18px 22px;
-    margin:20px 0;
-    box-sizing:border-box;
-    box-shadow:0 12px 35px rgba(0,0,0,.15);
+.wm-banner{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:30px;
+padding:28px;
+border-radius:20px;
+background:linear-gradient(135deg,#0f172a,#1d4ed8);
+color:#fff;
+font-family:Arial,sans-serif;
+box-shadow:0 20px 45px rgba(0,0,0,.18);
+overflow:hidden;
+position:relative;
 }
 
-.wm-tech-content{
-    display:flex;
-    align-items:center;
-    gap:18px;
-    flex-wrap:wrap;
+.wm-banner::before{
+content:"";
+position:absolute;
+right:-80px;
+top:-80px;
+width:220px;
+height:220px;
+background:rgba(255,255,255,.08);
+border-radius:50%;
 }
 
-.wm-tech-icon{
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:#fff;
-    color:#0f172a;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
-    flex-shrink:0;
+.wm-tag{
+display:inline-block;
+padding:7px 15px;
+background:#22c55e;
+border-radius:30px;
+font-size:13px;
+font-weight:700;
+margin-bottom:15px;
 }
 
-.wm-tech-text{
-    flex:1;
-    color:#fff;
-    font-size:15px;
-    line-height:1.7;
+.wm-banner h2{
+margin:0;
+font-size:32px;
+line-height:1.3;
 }
 
-.wm-tech-text strong{
-    display:block;
-    font-size:22px;
-    margin-bottom:5px;
+.wm-banner p{
+margin-top:15px;
+opacity:.9;
+font-size:16px;
+max-width:650px;
 }
 
-.wm-tech-btn a{
-    display:inline-block;
-    background:#22c55e;
-    color:#fff;
-    text-decoration:none;
-    padding:12px 24px;
-    border-radius:8px;
-    font-weight:700;
-    transition:.3s;
+.wm-btn{
+display:inline-block;
+padding:15px 28px;
+background:#fff;
+color:#0f172a;
+font-weight:700;
+text-decoration:none;
+border-radius:12px;
+transition:.3s;
 }
 
-.wm-tech-btn a:hover{
-    background:#16a34a;
-    transform:translateY(-2px);
+.wm-btn:hover{
+transform:translateY(-3px);
 }
 
 @media(max-width:768px){
 
-    .wm-tech-content{
-        flex-direction:column;
-        text-align:center;
-    }
+.wm-banner{
+flex-direction:column;
+text-align:center;
+}
 
-    .wm-tech-btn{
-        width:100%;
-    }
-
-    .wm-tech-btn a{
-        width:100%;
-        box-sizing:border-box;
-    }
+.wm-banner h2{
+font-size:25px;
+}
 
 }
