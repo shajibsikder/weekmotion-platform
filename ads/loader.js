@@ -1,17 +1,13 @@
-(async function () {
-    const currentScript = document.currentScript;
-
-    const target =
-        currentScript.previousElementSibling?.classList.contains("weekmotion-ad")
-            ? currentScript.previousElementSibling
-            : document.querySelector(".weekmotion-ad");
+(async () => {
+    const target = document.currentScript.previousElementSibling;
 
     if (!target) return;
 
+    const shadow = target.attachShadow({ mode: "open" });
+
     const html = await fetch(
-        "https://cdn.jsdelivr.net/gh/shajibsikder/weekmotion-platform@main/ads/banner.html?t=" +
-            Date.now()
+        "https://cdn.jsdelivr.net/gh/shajibsikder/weekmotion-platform@main/ads/banner.html?"+Date.now()
     ).then(r => r.text());
 
-    target.innerHTML = html;
+    shadow.innerHTML = html;
 })();
