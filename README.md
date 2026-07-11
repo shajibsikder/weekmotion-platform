@@ -1,6 +1,7 @@
 <div align="left">
 
-# Weekmotion: System Architecture & Design Overview
+# Weekmotion Official Architecture Documentation
+Scalable Content Platform • Creator Economy • Advertisement Network • Digital Services
 
 *A scalable video-sharing, content monetization, and creator ecosystem*
 
@@ -15,6 +16,11 @@
 
 </div>
 
+> [!IMPORTANT]
+> **This repository contains official architecture documentation, release notes, and project information for Weekmotion.**
+>
+> The production source code, proprietary algorithms, and internal infrastructure remain private and are **not included** in this repository.
+
 ---
 
 ## Overview
@@ -25,13 +31,26 @@ The system is built for maintainability and efficient handling of media-heavy wo
 
 ---
 
+## 📚 Table of Contents
+
+- Overview
+- Platform Snapshot
+- System Architecture
+- Core Systems
+- Infrastructure
+- Deployment
+- Security
+- Roadmap
+- Release Notes
+- Repository Notice
+
 ## 📊 Platform Snapshot
 
 | Attribute | Detail |
 |---|---|
 | **Founded** | 2021 |
 | **Active Users** | 20,000+ |
-| **Registered Users:** | 65,000+ |
+| **Registered Users:** | 75,000+ |
 | **Creator Ecosystem** | ✅ |
 | **Video Sharing Platform** | ✅ |
 | **Community Feed System** | ✅ |
@@ -955,6 +974,20 @@ Organized into three delivery stages — reflecting realistic sequencing, not as
 
 ---
 
+## 🚀 Latest Release
+
+**Current Version:** **v3.2.3**
+
+### Highlights
+
+- Enhanced Ad Delivery Engine
+- Improved Anti-Fraud Protection
+- Real-Time Frequency Capping
+- Automated Database Maintenance
+- UI & Performance Improvements
+
+👉 See the complete release notes in the **Releases** section.
+
 ### ✅ Recently Shipped / Live
 
 The following social, creator experience, and commerce features have been successfully deployed to production and are now active:
@@ -1073,8 +1106,17 @@ Capabilities that require significant new infrastructure or research — not nea
 
 ---
 
-<div align="center">
+---
 
-*Weekmotion — Creator ecosystem built for scale.*
+# 🔒 Repository Notice
 
-</div>
+> [!IMPORTANT]
+> This repository contains official documentation, release notes, and architectural information for the Weekmotion platform.
+>
+> The production source code, proprietary algorithms, deployment infrastructure, and internal services are private and are **not included** in this repository.
+
+---
+
+© 2026 Weekmotion Tech. All Rights Reserved.
+
+This repository is maintained by Weekmotion Tech for official project documentation and release history.
