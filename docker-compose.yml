@@ -5,7 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile
     image: weekmotion/gateway:latest
-    container_name: weekmotion_gateway
     restart: unless-stopped
     working_dir: /var/www/html
     ports:
@@ -15,7 +14,12 @@ services:
       - APP_ENV=production
       - DB_HOST=db
       - DB_NAME=weekmotion
+      - DB_USER=weekmotion_app
+      - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=cache
+    volumes:
+      - upload_data:/var/www/html/upload
+      - cache_data:/var/www/html/cache
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
@@ -27,15 +31,15 @@ services:
       cache:
         condition: service_healthy
 
-  # Relational Database Engine (MySQL with InnoDB ACID transactions)
+  # Relational Database Engine (MySQL 8.4 Long-Term Support)
   db:
-    image: mysql:8.0
-    container_name: weekmotion_db
+    image: mysql:8.4
     restart: unless-stopped
-    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: weekmotion
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-wm_secure_vault_2026}
+      MYSQL_USER: weekmotion_app
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -47,8 +51,8 @@ services:
   # In-Memory Cache and Real-Time Event Broker
   cache:
     image: redis:7-alpine
-    container_name: weekmotion_cache
     restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-""}
     volumes:
       - redis_data:/data
     healthcheck:
@@ -58,5 +62,7 @@ services:
       retries: 5
 
 volumes:
+  upload_data:
+  cache_data:
   db_data:
   redis_data:
