@@ -1,69 +1,58 @@
-# =========================
-# Stage 1: Composer build
-# =========================
-FROM composer:2.6 AS vendor
+# ==============================================================================
+# Weekmotion Platform Container Architecture
+# Optimized Multi-Service Media Ingestion & Web Gateway Environment
+# Base: Alpine Linux with PHP 8.2/8.3, Node.js 20 LTS, FFmpeg & Nginx
+# ==============================================================================
 
-WORKDIR /app
-
-# Dependency files first (better cache)
-COPY composer.json composer.lock ./
-COPY database/ database/
-
-RUN composer install \
-    --ignore-platform-reqs \
-    --no-interaction \
-    --no-plugins \
-    --no-scripts \
-    --no-dev \
-    --prefer-dist \
-    --optimize-autoloader
-
-# =========================
-# Stage 2: Runtime
-# =========================
 FROM php:8.2-fpm-alpine
 
 WORKDIR /var/www/html
 
-# System dependencies (minimal production-safe set)
+# System toolchain & multimedia dependencies
 RUN apk add --no-cache \
     nginx \
     supervisor \
+    ffmpeg \
+    nodejs \
+    npm \
+    git \
+    curl \
     unzip \
-    zip \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
-    libzip-dev
+    libzip-dev \
+    icu-dev \
+    oniguruma-dev
 
-# PHP extensions (Laravel core requirements)
+# Compile PHP core extensions for video processing & database transaction safety
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
+    && docker-php-ext-install -j$(nproc) \
+        mysqli \
         pdo_mysql \
         bcmath \
         gd \
-        zip
+        zip \
+        intl \
+        mbstring \
+        opcache
 
-# Copy application (optimized layering)
-COPY . .
-
-# Copy vendor from build stage
-COPY --from=vendor /app/vendor/ vendor/
-
-# Config files
+# Deploy optimized service configurations
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 
-# Laravel required directories + secure permissions
-RUN mkdir -p storage bootstrap/cache \
-    && chown -R www-data:www-data storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+# Setup runtime storage, buffer directories, and file permissions
+RUN mkdir -p /var/www/html/upload/photos \
+             /var/www/html/upload/videos \
+             /var/www/html/cache \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/upload /var/www/html/cache
 
-# Ensure correct ownership for full app
-RUN chown -R www-data:www-data /var/www/html
+# Copy application blueprints & assets
+COPY . .
 
-# Expose HTTP port
-EXPOSE 80
+# Expose HTTP port (80) & Real-time WebSockets port (8000)
+EXPOSE 80 8000
 
-# Start supervisor (manages nginx + php-fpm + workers)
+# Start Supervisor process manager orchestrating Nginx and PHP-FPM
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]

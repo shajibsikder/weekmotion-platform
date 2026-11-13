@@ -1,41 +1,44 @@
 version: "3.8"
 
 services:
-  app:
+  # Weekmotion Unified Web Gateway & Media Processing Engine
+  gateway:
     build: .
-    container_name: weekmotion_app
+    container_name: weekmotion_gateway
     restart: unless-stopped
     working_dir: /var/www/html
-    volumes:
-      - .:/var/www/html
-    depends_on:
-      - db
-      - redis
-
-  nginx:
-    image: nginx:alpine
-    container_name: weekmotion_nginx
     ports:
       - "80:80"
-    volumes:
-      - .:/var/www/html
-      - ./docker/nginx.conf:/etc/nginx/nginx.conf
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DB_HOST=db
+      - DB_NAME=weekmotion
+      - REDIS_HOST=cache
     depends_on:
-      - app
+      - db
+      - cache
 
+  # Relational Database Engine (MySQL with InnoDB ACID transactions)
   db:
-    image: mysql:8
+    image: mysql:8.0
     container_name: weekmotion_db
     restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_DATABASE: weekmotion
-      MYSQL_ROOT_PASSWORD: root
-    ports:
-      - "3306:3306"
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-wm_secure_vault_2026}
+    volumes:
+      - db_data:/var/lib/mysql
 
-  redis:
-    image: redis:alpine
-    container_name: weekmotion_redis
+  # In-Memory Cache and Real-Time Event Broker
+  cache:
+    image: redis:7-alpine
+    container_name: weekmotion_cache
     restart: unless-stopped
-    ports:
-      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  db_data:
+  redis_data:
