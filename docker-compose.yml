@@ -15,13 +15,16 @@ services:
       - DB_HOST=db
       - DB_NAME=weekmotion
       - DB_USER=weekmotion_app
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_PASSWORD=${DB_PASSWORD:-wm_secret_db_pass}
       - REDIS_HOST=cache
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-wm_cache_secret}
     volumes:
       - upload_data:/var/www/html/upload
       - cache_data:/var/www/html/cache
+    tmpfs:
+      - /tmp:size=1G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
+      test: ["CMD-SHELL", "curl -f http://localhost/ && curl -f http://localhost:8000/health || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -38,25 +41,26 @@ services:
     environment:
       MYSQL_DATABASE: weekmotion
       MYSQL_USER: weekmotion_app
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-wm_secret_db_pass}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-wm_root_vault_pass}
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "weekmotion_app", "--password=${DB_PASSWORD:-wm_secret_db_pass}"]
       interval: 10s
       timeout: 5s
+      start_period: 20s
       retries: 5
 
   # In-Memory Cache and Real-Time Event Broker
   cache:
     image: redis:7-alpine
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD:-""}
+    command: redis-server --requirepass ${REDIS_PASSWORD:-wm_cache_secret}
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a ${REDIS_PASSWORD:-wm_cache_secret} ping || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
