@@ -1,10 +1,10 @@
 # ==============================================================================
 # Weekmotion Platform Container Architecture
 # Optimized Multi-Service Media Ingestion & Web Gateway Environment
-# Base: Alpine Linux 3.21 with PHP 8.3-FPM, Node.js 22 LTS, FFmpeg & Nginx
+# Base: Alpine Linux with PHP 8.3-FPM, Node.js 22 LTS, FFmpeg & Nginx
 # ==============================================================================
 
-FROM php:8.3-fpm-alpine3.21 AS base
+FROM php:8.3-fpm-alpine AS base
 
 WORKDIR /var/www/html
 
