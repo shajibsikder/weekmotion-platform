@@ -9,7 +9,6 @@ services:
     working_dir: /var/www/html
     ports:
       - "80:80"
-      - "8000:8000"
     environment:
       - APP_ENV=production
       - DB_HOST=db
@@ -64,7 +63,7 @@ services:
   cache:
     image: redis:7-alpine
     restart: unless-stopped
-    command: redis-server --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be specified in .env}
+    command: redis-server --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD must be specified in .env} --maxmemory 384mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
     deploy:
