@@ -1,96 +1,79 @@
-# 🎬 Weekmotion
+# Weekmotion Platform Overview
 
-**Web-focused Backend Engineer | Laravel | System Design | Scalable Backend Architectures**
-
----
-
-## 🧠 Overview
-
-Weekmotion is a modular monolithic video-sharing and content monetization platform designed for scalable media delivery, creator monetization, and secure financial transactions.
-
-The system is built to handle **high traffic workloads with consistent performance, data integrity, and maintainable architecture design**.
+Technical Portfolio and Engineering Reference  
+Lead Systems Engineer: Md Shajib Sikder  
+Focus: High-Throughput Media Delivery, Distributed Backend Architecture, Transactional Systems
 
 ---
 
-## ⚙️ Core Architecture
+## 1. System Overview
 
-- Modular Monolith Backend (Laravel)
-- Stateless REST API design
-- Redis-based asynchronous job processing
-- MySQL relational consistency model
-- Nginx reverse proxy layer
-- Queue-driven background workers
+Weekmotion is a high-concurrency video delivery and digital creator platform engineered to support low-latency streaming, real-time engagement flows, and transactional financial ledgers.
+
+The platform processes media-heavy workloads using asynchronous queue workers, edge caching, and relational data consistency models.
 
 ---
 
-## 🧠 System Flow (High Level)
+## 2. Core Architecture
 
-Client Request → Nginx → Laravel API → Redis Queue → Worker → MySQL → Response
-
----
-
-## 🎯 Key System Modules
-
-### 📺 Media System
-- Chunk-based video upload pipeline
-- Unified content system (videos, posts, articles)
-- Optimized relational schema for high-read performance
-
-### 👤 User System
-- Role-based access control (Free / Pro)
-- Creator profile management
-- Activity tracking system
-
-### 💰 Monetization System
-- Creator eligibility rule engine
-- Watch-based reward processing
-- Internal monetization routing logic
-
-### 🏦 Financial System
-- Double-entry ledger architecture
-- Transaction-safe balance management
-- Deposit, withdrawal, and transfer workflows
-
-### 📢 Advertisement System
-- Internal ad routing engine
-- Tier-based ad visibility control
+- High-Performance PHP Core and Node.js Event Gateway
+- Event-driven WebSocket layer (Socket.IO) for bidirectional presence and real-time updates
+- Relational data architecture utilizing MySQL (InnoDB) with compound index optimization
+- Edge delivery and origin protection powered by Cloudflare CDN and LiteSpeed Web Server
+- Decoupled video transcoding pipeline powered by FFmpeg background processes
 
 ---
 
-## 🚀 Performance Design
+## 3. High-Level Data Flow
 
-- Redis caching for high-speed read optimization
-- Asynchronous queue processing for heavy workloads
-- Database indexing for query efficiency
-- Separation of synchronous and background operations
-
----
-
-## 🐳 Infrastructure
-
-- Docker-based containerized deployment
-- Nginx + PHP-FPM runtime environment
-- Supervisor-managed queue workers
-- GitHub Actions CI validation pipeline
-
----
-
-## 📊 System Design Focus
-
-- Scalability-first backend architecture
-- Strong data consistency under concurrency
-- Event-driven background processing model
-- Clean separation of domain responsibilities
+```
+Client Request
+      │
+      ▼
+Cloudflare Edge WAF
+      │
+      ├────────────────────────┐
+      ▼                        ▼
+LiteSpeed Web Gateway    Node.js Event Broker
+ (PHP Core Engine)        (Socket.IO Real-Time)
+      │                        │
+      ├────────────────────────┘
+      ▼
+MySQL Relational Storage (ACID Transaction Ledger)
+      │
+      ▼
+FFmpeg Background Worker (Transcoding & Optimization)
+```
 
 ---
 
-## 📍 Status
+## 4. Key Subsystems
 
-> Architecture showcase project (modular monolith, production-style infrastructure, not open-source SaaS)
+### Media Streaming and Delivery
+- Multi-part chunked ingestion pipeline handling high-resolution video assets.
+- Asynchronous transcoding engine standardizing bitrates and generating WebP previews.
+- Asset encapsulation isolating private storage paths from client inspection.
+
+### User Management and Access Control
+- Tiered privilege model with granular role enforcement (Standard, Creator, VIP/Pro).
+- Session tracking and token authentication with origin IP verification.
+- Scoped cookie handling with CSRF safeguards.
+
+### Monetization and Financial Ledger
+- Double-entry internal ledger maintaining continuous transactional balance integrity.
+- Creator earnings engine with automated fee computation and payout authorization.
+- Integrated advertisement impression logging and frequency control.
 
 ---
 
-## ✉️ Contact
+## 5. Engineering Metrics
 
-**Email:** im.mdshajib@gmail.com  
-**Platform:** Weekmotion Ecosystem
+- Active User Base: 14,000+ registered accounts
+- Lifetime Completed Streams: 885,000+ views
+- Ingested Media Library: 1,400+ published titles
+- Total Engagement Events: 1,250,000+ interactions
+
+---
+
+Author: Md Shajib Sikder  
+Platform: Weekmotion

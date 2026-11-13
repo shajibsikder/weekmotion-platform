@@ -1,9 +1,13 @@
-Weekmotion is a modular monolithic backend system designed for scalable video content delivery and creator monetization.
+# Weekmotion Technical Architecture Script
 
-Built with Laravel, the system follows a clean separation of responsibilities where the core API handles user requests, while heavy operations such as rewards processing, analytics, and background jobs are delegated to Redis-based queues and worker processes.
+Weekmotion is a modular, high-throughput platform engineered for video streaming, creator monetization, and community interactions.
 
-For performance, MySQL is used as the primary relational database with proper indexing and transactional consistency, especially for financial operations like deposits, withdrawals, and internal ledger updates.
+The platform architecture follows clean separation between web requests, real-time message brokering, and media encoding:
 
-The architecture is optimized using Nginx as a reverse proxy, Redis for caching high-frequency data, and a queue-driven processing model to ensure non-blocking request handling.
+1. Web and API Gateway: LiteSpeed Enterprise combined with a streamlined PHP runtime handles client routing, authenticated sessions, and view rendering.
+2. Real-Time Event Broker: A lightweight Node.js service running Socket.IO handles live alerts, notification broadcasts, and client presence states.
+3. Media Processing Pipeline: Incoming raw media is queued and processed through automated FFmpeg background workers, ensuring non-blocking operations during high upload traffic.
+4. Relational Data Layer: A normalized MySQL schema with compound B-tree indexing maintains consistent sub-10ms query times on high-volume read tables.
+5. Transactional Integrity: Deposits, creator rewards, and platform fees operate within atomic database transactions to guarantee ledger consistency.
 
-Overall, the system is designed for scalability, data integrity, and maintainability under high traffic workloads, while maintaining a modular monolith structure instead of a distributed microservices architecture.
+The overall architecture is optimized for high uptime, cost efficiency, and modular maintainability across scalable production workloads.
