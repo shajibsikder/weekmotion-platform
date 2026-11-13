@@ -1,32 +1,44 @@
 # ==============================================================================
 # Weekmotion Platform Container Architecture
 # Optimized Multi-Service Media Ingestion & Web Gateway Environment
-# Base: Alpine Linux with PHP 8.2/8.3, Node.js 20 LTS, FFmpeg & Nginx
+# Base: Alpine Linux with PHP 8.3-FPM, Node.js 22 LTS, FFmpeg & Nginx
 # ==============================================================================
 
-FROM php:8.2-fpm-alpine
+# Stage 1: Runtime Base with Pinned PHP 8.3 & Toolchain
+FROM php:8.3-fpm-alpine3.20 AS base
 
 WORKDIR /var/www/html
 
-# System toolchain & multimedia dependencies
+# Import Pinned Node.js 22 LTS and npm from official Node image
+COPY --from=node:22-alpine /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:22-alpine /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
+# Install Production System Toolchain, Nginx, Supervisor, FFmpeg & Runtime Libraries
 RUN apk add --no-cache \
     nginx \
     supervisor \
     ffmpeg \
-    nodejs \
-    npm \
-    git \
     curl \
+    git \
     unzip \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
-    icu-dev \
-    oniguruma-dev
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
+    icu-libs \
+    oniguruma
 
-# Compile PHP core extensions for video processing & database transaction safety
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+# Build PHP Extensions with Build Dependencies, then Purge Build Tools to keep image lean
+RUN apk add --no-cache --virtual .build-deps \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        libzip-dev \
+        icu-dev \
+        oniguruma-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         mysqli \
         pdo_mysql \
@@ -35,24 +47,32 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
         zip \
         intl \
         mbstring \
-        opcache
+        opcache \
+    && apk del .build-deps \
+    && rm -rf /var/cache/apk/* /tmp/*
 
-# Deploy optimized service configurations
+# Deploy Enterprise Configurations
 COPY ./docker/nginx.conf /etc/nginx/nginx.conf
 COPY ./docker/supervisor.conf /etc/supervisor/conf.d/supervisor.conf
+COPY ./docker/php.ini /usr/local/etc/php/conf.d/99-weekmotion.ini
+COPY ./docker/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
-# Setup runtime storage, buffer directories, and file permissions
+# Setup application directory structure and secure permissions
 RUN mkdir -p /var/www/html/upload/photos \
              /var/www/html/upload/videos \
              /var/www/html/cache \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/upload /var/www/html/cache
 
-# Copy application blueprints & assets
-COPY . .
+# Copy codebase with optimized non-root ownership
+COPY --chown=www-data:www-data . .
 
 # Expose HTTP port (80) & Real-time WebSockets port (8000)
 EXPOSE 80 8000
 
-# Start Supervisor process manager orchestrating Nginx and PHP-FPM
+# Container Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
+
+# Start Supervisor Process Manager
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisor.conf"]

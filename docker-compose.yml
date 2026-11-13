@@ -1,9 +1,10 @@
-version: "3.8"
-
 services:
   # Weekmotion Unified Web Gateway & Media Processing Engine
   gateway:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: weekmotion/gateway:latest
     container_name: weekmotion_gateway
     restart: unless-stopped
     working_dir: /var/www/html
@@ -15,9 +16,16 @@ services:
       - DB_HOST=db
       - DB_NAME=weekmotion
       - REDIS_HOST=cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     depends_on:
-      - db
-      - cache
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
 
   # Relational Database Engine (MySQL with InnoDB ACID transactions)
   db:
@@ -30,6 +38,11 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-wm_secure_vault_2026}
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # In-Memory Cache and Real-Time Event Broker
   cache:
@@ -38,6 +51,11 @@ services:
     restart: unless-stopped
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   db_data:
